@@ -20,4 +20,4 @@ $ cmake -B build && cmake --build build
 $ cd build && ./multithreaded-server
 ```
 
-```main.cpp``` simulates concurrent usage of the web server by instantiating and processing multiple client objects. Once the server is running, navigating to [127.0.0.1:8080/index.html](127.0.0.1:8080/index.html) in a web browser would also display the result of making a request to the server.
+```main.cpp``` simulates concurrent usage of the web server by instantiating and processing multiple client objects. Once the server is running, navigating to [http://127.0.0.1:8080/index.html](http://127.0.0.1:8080/index.html) in a web browser would also display the result of making a request to the server. The browser will initially request ```index.html```. Upon receipt, it will notice the file contains references to a stylesheet, script and image, and will send additional requests for these. 
