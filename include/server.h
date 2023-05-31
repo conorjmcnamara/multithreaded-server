@@ -1,6 +1,6 @@
 #pragma once
-#include "file_handler.h"
-#include "parse_headers.h"
+#include "file_manager.h"
+#include "header_parser.h"
 #include <queue>
 #include <pthread.h>
 #include <windows.h>
@@ -23,8 +23,8 @@ private:
     std::queue<pthread_t> threadQueue;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    FileHandler file_handler;
-    ParseHeaders parse_headers;
+    FileManager file_manager;
+    HeaderParser header_parser;
 
     void initSocket();
     void initThreadPool();

@@ -155,7 +155,7 @@ void Server::processClientRequest(SOCKET clientSocket) {
     }
 
     std::string request(buffer.data());
-    parse_headers.printHeaders(request);
+    header_parser.printHeaders(request, pthread_self());
 
     // parse the requested file path from the HTTP request
     size_t start = request.find(' ');
@@ -163,7 +163,7 @@ void Server::processClientRequest(SOCKET clientSocket) {
 
     if (start != std::string::npos && end != std::string::npos) {
         std::string filePath = "../static/" + request.substr(start + 1, end - start - 1);
-        std::string response = file_handler.readFileWithResponse(filePath);
+        std::string response = file_manager.readFileWithResponse(filePath);
         send(clientSocket, response.c_str(), response.size(), 0);
     }
 }

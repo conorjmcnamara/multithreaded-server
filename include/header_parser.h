@@ -1,9 +1,10 @@
 #pragma once
 #include <string>
+#include <pthread.h>
 
-class ParseHeaders {
+class HeaderParser {
 public:
-    static void printHeaders(const std::string& request);
+    static void printHeaders(const std::string& request, pthread_t threadNum);
     
 private:
     static std::string getRequest(const std::string& request);
