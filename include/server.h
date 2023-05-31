@@ -1,6 +1,6 @@
 #pragma once
 #include "file_handler.h"
-#include <string>
+#include "parse_headers.h"
 #include <queue>
 #include <pthread.h>
 #include <windows.h>
@@ -24,6 +24,7 @@ private:
     pthread_mutex_t mutex;
     pthread_cond_t condition;
     FileHandler file_handler;
+    ParseHeaders parse_headers;
 
     void initSocket();
     void initThreadPool();

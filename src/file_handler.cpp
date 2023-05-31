@@ -16,7 +16,7 @@ const std::unordered_map<std::string, std::string> FileHandler::contentTypeMap =
 std::string FileHandler::readFileWithResponse(const std::string& filePath) {
     std::ifstream file(filePath, std::ios::binary);
     if (!file.is_open()) {
-        return generateErrorResponse(404, "not found");
+        return makeErrorResponse(404, "not found");
     }
 
     std::ostringstream contentStream;
@@ -24,14 +24,14 @@ std::string FileHandler::readFileWithResponse(const std::string& filePath) {
     std::string fileContent = contentStream.str();
     file.close();
 
-    std::string contentType = determineContentType(filePath);
-    return generateSuccessResponse(200, fileContent, contentType);
+    std::string contentType = getContentType(filePath);
+    return makeSuccessResponse(200, fileContent, contentType);
 }
 
-std::string FileHandler::determineContentType(const std::string& filePath) {
+std::string FileHandler::getContentType(const std::string& filePath) {
     size_t dotIndex = filePath.find_last_of('.');
+    // default if a dot extension is not present
     if (dotIndex == std::string::npos) {
-        // default if no dot extension is present
         return "text/plain";
     }
 
@@ -45,7 +45,7 @@ std::string FileHandler::determineContentType(const std::string& filePath) {
     }
 }
 
-std::string FileHandler::generateSuccessResponse(int statusCode, const std::string& content, const std::string& contentType) {
+std::string FileHandler::makeSuccessResponse(int statusCode, const std::string& content, const std::string& contentType) {
     std::ostringstream responseStream;
     responseStream << "HTTP/1.1 " << statusCode << " OK\r\n";
     responseStream << "Content-Length: " << content.size() << "\r\n";
@@ -54,7 +54,7 @@ std::string FileHandler::generateSuccessResponse(int statusCode, const std::stri
     return responseStream.str();
 }
 
-std::string FileHandler::generateErrorResponse(int statusCode, const std::string& statusMessage) {
+std::string FileHandler::makeErrorResponse(int statusCode, const std::string& statusMessage) {
     std::ostringstream responseStream;
     responseStream << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
     responseStream << "Content-Type: text/html\r\n\r\n";
