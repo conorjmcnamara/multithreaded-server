@@ -8,7 +8,7 @@ public:
 
 private:
     static const std::unordered_map<std::string, std::string> contentTypeMap;
-    std::string determineContentType(const std::string& filePath);
-    std::string generateSuccessResponse(int statusCode, const std::string& content, const std::string& contentType);
-    std::string generateErrorResponse(int statusCode, const std::string& statusMessage);
+    std::string getContentType(const std::string& filePath);
+    std::string makeSuccessResponse(int statusCode, const std::string& content, const std::string& contentType);
+    std::string makeErrorResponse(int statusCode, const std::string& statusMessage);
 };

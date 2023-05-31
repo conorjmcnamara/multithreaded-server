@@ -150,23 +150,21 @@ void Server::processClientRequest(SOCKET clientSocket) {
 
     // get request data from the client socket
     int bytesRead = recv(clientSocket, buffer.data(), bufferSize - 1, 0);
+    if (bytesRead == 0) {
+        return;
+    }
 
-    if (bytesRead > 0) {
-        std::cout << "received request from client " << buffer.data() << "\n";
+    std::string request(buffer.data());
+    parse_headers.printHeaders(request);
 
-        // parse the requested file path from the HTTP request
-        std::string request(buffer.data());
-        size_t start = request.find(' ');
-        size_t end = request.find(' ', start + 1);
+    // parse the requested file path from the HTTP request
+    size_t start = request.find(' ');
+    size_t end = request.find(' ', start + 1);
 
-        // ensure start and end are valid positions
-        if (start != std::string::npos && end != std::string::npos) {
-            std::string filePath = "../static/" + request.substr(start + 1, end - start - 1);
-
-            std::string response = file_handler.readFileWithResponse(filePath);
-            send(clientSocket, response.c_str(), response.size(), 0);
-            std::cout << "sent file content response to client with thread " << pthread_self() << "\n";
-        }
+    if (start != std::string::npos && end != std::string::npos) {
+        std::string filePath = "../static/" + request.substr(start + 1, end - start - 1);
+        std::string response = file_handler.readFileWithResponse(filePath);
+        send(clientSocket, response.c_str(), response.size(), 0);
     }
 }
 
