@@ -1,4 +1,5 @@
 #pragma once
+#include "file_handler.h"
 #include <string>
 #include <queue>
 #include <pthread.h>
@@ -15,13 +16,14 @@ private:
     std::string serverIP;
     int serverPort;
     int maxThreads;
-    bool isRunning;
+    bool isRunning = false;
     sockaddr_in serverAddr;
     SOCKET serverSocket;
     std::queue<SOCKET> clientQueue;
     std::queue<pthread_t> threadQueue;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
+    FileHandler file_handler;
 
     void initSocket();
     void initThreadPool();

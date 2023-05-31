@@ -163,33 +163,9 @@ void Server::processClientRequest(SOCKET clientSocket) {
         if (start != std::string::npos && end != std::string::npos) {
             std::string filePath = "../static/" + request.substr(start + 1, end - start - 1);
 
-            FILE* file = fopen(filePath.c_str(), "rb");
-            if (file) {
-                std::vector<char> fileContent;
-                char fileBuffer[bufferSize];
-                size_t bytesRead;
-
-                while ((bytesRead = fread(fileBuffer, 1, sizeof(fileBuffer), file)) > 0) {
-                    fileContent.insert(fileContent.end(), fileBuffer, fileBuffer + bytesRead);
-                }
-                fclose(file);
-
-                // send a HTTP response with the file content
-                std::string response = "HTTP/1.1 200 OK\r\n";
-                response += "Content-Length: " + std::to_string(fileContent.size()) + "\r\n";
-                response += "Content-Type: text/html\r\n\r\n";
-                response.append(fileContent.data(), fileContent.size());
-                send(clientSocket, response.c_str(), response.size(), 0);
-                std::cout << "sent file content response to client with thread " << pthread_self() << "\n";
-            }
-            else {
-                // send a 404 not found HTTP response
-                std::string response = "HTTP/1.1 404 not found\r\n";
-                response += "Content-Type: text/html\r\n\r\n";
-                response += "<html><body><h1>404 Not Found</h1></body></html>";
-                send(clientSocket, response.c_str(), response.size(), 0);
-                std::cout << "sent 404 not found response to client with thread " << pthread_self() << "\n";
-            }
+            std::string response = file_handler.readFileWithResponse(filePath);
+            send(clientSocket, response.c_str(), response.size(), 0);
+            std::cout << "sent file content response to client with thread " << pthread_self() << "\n";
         }
     }
 }
