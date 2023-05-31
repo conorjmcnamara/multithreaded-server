@@ -2,7 +2,7 @@
 #include <string>
 #include <unordered_map>
 
-class FileHandler {
+class FileManager {
 public:
     std::string readFileWithResponse(const std::string& filePath);
 

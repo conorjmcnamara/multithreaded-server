@@ -6,8 +6,8 @@ set(SOURCES
     src/main.cpp 
     src/server.cpp 
     src/client.cpp 
-    src/file_handler.cpp 
-    src/parse_headers.cpp
+    src/file_manager.cpp 
+    src/header_parser.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

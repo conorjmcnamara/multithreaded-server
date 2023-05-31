@@ -1,8 +1,8 @@
-#include "../include/parse_headers.h"
+#include "../include/header_parser.h"
 #include <sstream>
 #include <iostream>
 
-std::string ParseHeaders::getRequest(const std::string& request) {
+std::string HeaderParser::getRequest(const std::string& request) {
     size_t endOfRequest = request.find("\r\n");
     if (endOfRequest != std::string::npos) {
         return request.substr(0, endOfRequest) + "\n";
@@ -10,7 +10,7 @@ std::string ParseHeaders::getRequest(const std::string& request) {
     return "";
 }
 
-std::string ParseHeaders::getHeaderField(const std::string& request, const std::string& fieldName) {
+std::string HeaderParser::getHeaderField(const std::string& request, const std::string& fieldName) {
     std::string field = fieldName + ": ";
     size_t start = request.find(field);
     if (start != std::string::npos) {
@@ -22,9 +22,9 @@ std::string ParseHeaders::getHeaderField(const std::string& request, const std::
     return "";
 }
 
-void ParseHeaders::printHeaders(const std::string& request) {
-    std::stringstream outputStream;
-    outputStream << "\n------------- Server -------------\n";
+void HeaderParser::printHeaders(const std::string& request, pthread_t threadNum) {
+    std::ostringstream outputStream;
+    outputStream << "\n------------- Server, thread: " << threadNum << " -------------\n";
     outputStream << getRequest(request);
     outputStream << getHeaderField(request, "Host");
     outputStream << getHeaderField(request, "Connection");
