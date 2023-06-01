@@ -3,8 +3,8 @@
 #include <cstdio>
 #include <cstdlib>
 
-Server::Server(const std::string& serverIP, int serverPort, int maxThreads)
-    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads) {}
+Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity)
+    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads), file_manager(cacheCapacity) {}
 
 void Server::start() {
     if (isRunning) {

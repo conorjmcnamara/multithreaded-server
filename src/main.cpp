@@ -46,7 +46,8 @@ int main() {
     std::string serverIP = "127.0.0.1";
     int serverPort = 8080;
     int maxThreads = 10;
-    Server server(serverIP, serverPort, maxThreads);
+    int cacheCapacity = 10;
+    Server server(serverIP, serverPort, maxThreads, cacheCapacity);
     pthread_t serverThread;
     pthread_create(&serverThread, nullptr, startServer, &server);
 

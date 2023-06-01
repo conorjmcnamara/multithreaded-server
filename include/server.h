@@ -7,7 +7,7 @@
 
 class Server {
 public:
-    Server(const std::string& serverIP, int serverPort, int maxThreads);
+    Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity);
     void start();
     void stop();
     sockaddr_in getServerAddr();
