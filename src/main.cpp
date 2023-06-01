@@ -33,7 +33,6 @@ void simulateConcurrentRequests(sockaddr_in serverAddr, int numClients) {
         pthread_t clientThread;
         pthread_create(&clientThread, nullptr, startClientRequest, client.get());
         clientThreads.push_back(clientThread);
-        usleep(1000);
     }
     
     // wait for all client threads to finish
@@ -51,7 +50,7 @@ int main() {
     pthread_t serverThread;
     pthread_create(&serverThread, nullptr, startServer, &server);
 
-    usleep(10000);
+    usleep(1000);
     simulateConcurrentRequests(server.getServerAddr(), 5);
 
     // server.stop();

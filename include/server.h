@@ -1,9 +1,11 @@
 #pragma once
-#include "file_manager.h"
-#include "header_parser.h"
+#include "http_parser.h"
+#include "http_response.h"
+#include <string>
 #include <queue>
 #include <pthread.h>
 #include <windows.h>
+#include <regex>
 
 class Server {
 public:
@@ -23,8 +25,9 @@ private:
     std::queue<pthread_t> threadQueue;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    FileManager file_manager;
-    HeaderParser header_parser;
+    HTTPParser http_parser;
+    HTTPResponse http_response;
+    static std::regex supportedMethods;
 
     void initSocket();
     void initThreadPool();
@@ -34,6 +37,7 @@ private:
     SOCKET acceptClientConnection();
     void enqueueClientRequest(SOCKET clientSocket);
     SOCKET dequeueClientRequest();
+    std::string getMethodType(const std::string& request);
     void processClientRequest(SOCKET clientSocket);
     void cleanup();
 };

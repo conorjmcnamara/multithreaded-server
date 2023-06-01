@@ -3,8 +3,10 @@
 #include <cstdio>
 #include <cstdlib>
 
+std::regex Server::supportedMethods("^(GET|HEAD)");
+
 Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity)
-    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads), file_manager(cacheCapacity) {}
+    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads), http_response(cacheCapacity) {}
 
 void Server::start() {
     if (isRunning) {
@@ -65,7 +67,6 @@ void Server::initSocket() {
         stop();
         return;
     }
-    std::cout << "successfully setup the server socket\n";
 }
 
 void Server::initThreadPool() {
@@ -123,9 +124,6 @@ void Server::enqueueClientRequest(SOCKET clientSocket) {
     if (threadQueue.size() < maxThreads) {
         addWorkerThread();
     }
-    else {
-        std::cout << "max threads reached, enqueuing client request without creating new thread\n";
-    }
 }
 
 SOCKET Server::dequeueClientRequest() {
@@ -144,6 +142,14 @@ SOCKET Server::dequeueClientRequest() {
     return clientSocket;
 }
 
+std::string Server::getMethodType(const std::string& request) {
+    std::smatch match;
+    if (std::regex_search(request, match, supportedMethods)){
+        return match.str(1);
+    }
+    return "";
+}
+
 void Server::processClientRequest(SOCKET clientSocket) {
     constexpr int bufferSize = 1024;
     std::vector<char> buffer(bufferSize, '\0');
@@ -155,15 +161,19 @@ void Server::processClientRequest(SOCKET clientSocket) {
     }
 
     std::string request(buffer.data());
-    header_parser.printHeaders(request, pthread_self());
+    http_parser.printHeaders(request, pthread_self());
 
-    // parse the requested file path from the HTTP request
-    size_t start = request.find(' ');
-    size_t end = request.find(' ', start + 1);
+    std::string method = getMethodType(request);
+    if (method.empty()) {
+        return;
+    }
 
-    if (start != std::string::npos && end != std::string::npos) {
-        std::string filePath = "../static/" + request.substr(start + 1, end - start - 1);
-        std::string response = file_manager.readFileWithResponse(filePath);
+    size_t startFilePath = request.find(' ');
+    size_t endFilePath = request.find(' ', startFilePath + 1);
+
+    if (startFilePath != std::string::npos && endFilePath != std::string::npos) {
+        std::string filePath = "../static/" + request.substr(startFilePath + 1, endFilePath - startFilePath - 1);
+        std::string response = http_response.makeResponse(filePath, method);
         send(clientSocket, response.c_str(), response.size(), 0);
     }
 }

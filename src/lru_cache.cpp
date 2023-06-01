@@ -32,19 +32,19 @@ std::string LRUCache::get(const std::string& key) {
         removeNode(node);
         moveToMRU(node);
         pthread_mutex_unlock(&cacheMutex);
-        return node->val;
+        return node->value;
     }
     pthread_mutex_unlock(&cacheMutex);
     return "";
 }
 
-void LRUCache::put(const std::string& key, const std::string& val) {
+void LRUCache::put(const std::string& key, const std::string& value) {
     pthread_mutex_lock(&cacheMutex);
     if (cache.find(key) != cache.end()) {
         removeNode(cache[key]);
     }
 
-    std::shared_ptr<Node> node = std::make_shared<Node>(key, val);
+    std::shared_ptr<Node> node = std::make_shared<Node>(key, value);
     cache[key] = node;
     moveToMRU(node);
 
