@@ -36,11 +36,11 @@ void Client::connectToServer() {
         closeConnection();
         return;
     }
-    std::cout << "successfully connected to server from client port " << clientPort << "\n";
+    //std::cout << "successfully connected to server from client port " << clientPort << "\n";
 }
 
 void Client::sendRequest(const std::string& request) {
-    std::cout << "sending request from client port: " << clientPort << "\n";
+    //std::cout << "sending request from client port: " << clientPort << "\n";
     if (send(clientSocket, request.c_str(), static_cast<int>(request.size()), 0) == SOCKET_ERROR) {
         std::cerr << "failed to send request to server from client port " << clientPort << "\n";
     }
@@ -60,8 +60,8 @@ void Client::receiveResponse() {
         }
     } while (bytesRead > 0);
     
-    std::cout << "received response from server on client port " << clientPort << ", size: "
-              << response.size() << " bytes\n";
+    //std::cout << "received response from server on client port " << clientPort << ", size: "
+              //<< response.size() << " bytes\n";
 }
 
 void Client::closeConnection() {

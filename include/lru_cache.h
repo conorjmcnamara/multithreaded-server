@@ -6,12 +6,12 @@
 
 struct Node {
     std::string key;
-    std::string val;
+    std::string value;
     std::shared_ptr<Node> prev;
     std::shared_ptr<Node> next;
 
-    Node(const std::string& key, const std::string& val)
-        : key(key), val(val), prev(nullptr), next(nullptr) {}
+    Node(const std::string& key, const std::string& value)
+        : key(key), value(value), prev(nullptr), next(nullptr) {}
 };
 
 class LRUCache {
