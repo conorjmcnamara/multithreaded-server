@@ -7,7 +7,8 @@ set(SOURCES
     src/server.cpp 
     src/client.cpp 
     src/file_manager.cpp 
-    src/header_parser.cpp
+    src/header_parser.cpp 
+    src/lru_cache.cpp
 )
 
 add_executable(${PROJECT_NAME} ${SOURCES})

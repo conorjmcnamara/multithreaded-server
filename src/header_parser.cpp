@@ -23,14 +23,14 @@ std::string HeaderParser::getHeaderField(const std::string& request, const std::
 }
 
 void HeaderParser::printHeaders(const std::string& request, pthread_t threadNum) {
-    std::ostringstream outputStream;
-    outputStream << "\n------------- Server, thread: " << threadNum << " -------------\n";
-    outputStream << getRequest(request);
-    outputStream << getHeaderField(request, "Host");
-    outputStream << getHeaderField(request, "Connection");
-    outputStream << getHeaderField(request, "User-Agent");
-    outputStream << getHeaderField(request, "Referer");
-    outputStream << getHeaderField(request, "Accept-Encoding");
-    outputStream << getHeaderField(request, "Accept-Language");
-    std::cout << outputStream.str();
+    std::ostringstream stream;
+    stream << "\n------------- Server thread: " << threadNum << " -------------\n";
+    stream << getRequest(request);
+    stream << getHeaderField(request, "Host");
+    stream << getHeaderField(request, "Connection");
+    stream << getHeaderField(request, "User-Agent");
+    stream << getHeaderField(request, "Referer");
+    stream << getHeaderField(request, "Accept-Encoding");
+    stream << getHeaderField(request, "Accept-Language");
+    std::cout << stream.str();
 }

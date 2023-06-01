@@ -4,6 +4,8 @@ A multi-threaded web server written in object-oriented C++ that uses TCP/IP sock
 
 The server runs on its own thread and when client requests arrive, the server dynamically creates new threads to process them concurrently up to a threshold ```maxThreads```. When this value is reached, incoming requests wait in a queue until one of the threads dequeues and processes it.
 
+A thread and memory-safe Least Recently Used (LRU) cache is implemented with smart pointers, a hashmap and doubly linked list. It's used to store file paths and their respective content streams in memory for fast lookup. When the cache capacity is reached, the entry that is least recently used is removed.
+
 ## Installation
 ### Prerequisites
 - C++
@@ -20,4 +22,4 @@ $ cmake -B build && cmake --build build
 $ cd build && ./multithreaded-server
 ```
 
-```main.cpp``` simulates concurrent usage of the web server by instantiating and processing multiple client objects. Once the server is running, navigating to [http://127.0.0.1:8080/index.html](http://127.0.0.1:8080/index.html) in a web browser would also display the result of making a request to the server. The browser will initially request ```index.html```. Upon receipt, it will notice the file contains references to a stylesheet, script and image, and will send additional requests for these. 
+```main.cpp``` simulates concurrent usage of the web server by instantiating and processing multiple client objects. Once the server is running, navigating to [http://127.0.0.1:8080/index.html](http://127.0.0.1:8080/index.html) in a web browser would display the result of making a request to the server. The browser will initially request ```index.html``` and upon receipt it will notice the file contains references to a stylesheet, script and image, and will send additional requests for these.
