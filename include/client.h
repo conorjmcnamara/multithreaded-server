@@ -1,4 +1,5 @@
 #pragma once
+#include "logger.h"
 #include <string>
 #include <windows.h>
 
@@ -15,4 +16,5 @@ private:
     sockaddr_in serverAddr;
     sockaddr_in clientAddr;
     SOCKET clientSocket;
+    Logger logger;
 };

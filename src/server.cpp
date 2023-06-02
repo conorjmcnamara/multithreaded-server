@@ -1,23 +1,25 @@
 #include "../include/server.h"
-#include <iostream>
 #include <cstdio>
 #include <cstdlib>
-
-std::regex Server::supportedMethods("^(GET|HEAD|POST)");
+#include <format>
+#include <string>
 
 Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity)
-    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads), http_response(cacheCapacity) {}
+    : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads),
+    http_response(cacheCapacity), logger("server.log") {}
+
+std::regex Server::supportedMethods("^(GET|HEAD)");
 
 void Server::start() {
     if (isRunning) {
-        std::cout << "server is already running\n";
+        logger.log(LogLevel::ERR, "Server is already running");
         return;
     }
 
     isRunning = true;
     initSocket();
     initThreadPool();
-    std::cout << "server running on IP: " << serverIP << ", port: " << serverPort << "\n";
+    logger.log(LogLevel::INFO, "Server running on IP: " + serverIP + ", port: " + std::to_string(serverPort));
 
     while (isRunning) {
         SOCKET clientSocket = acceptClientConnection();
@@ -37,16 +39,15 @@ sockaddr_in Server::getServerAddr() {
 }
 
 void Server::initSocket() {
-    // initialize network environment
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "failed to create server Winsock on port " << serverPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to create server Winsock on port " + serverPort);
         return;
     }
 
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == INVALID_SOCKET) {
-        std::cerr << "failed to create server socket on port " << serverPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to create server socket on port " + serverPort);
         WSACleanup();
         return;
     }
@@ -56,14 +57,14 @@ void Server::initSocket() {
     serverAddr.sin_addr.s_addr =  inet_addr(serverIP.c_str());
     
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "failed to bind server socket on port " << serverPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to bind server socket on port " + serverPort);
         stop();
         return;
     }
 
     // set the server's socket state to listen
     if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
-        std::cerr << "failed to listen on server socket on port " << serverPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to listen on server socket on port " + serverPort);
         stop();
         return;
     }
@@ -162,6 +163,7 @@ void Server::processClientRequest(SOCKET clientSocket) {
 
     std::string request(buffer.data());
     http_parser.printHeaders(request, pthread_self());
+    logger.log(LogLevel::INFO, http_parser.getStartLine(request));
 
     // check that the method is supported
     std::string method = getMethodType(request);

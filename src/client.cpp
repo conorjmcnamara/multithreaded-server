@@ -1,22 +1,20 @@
 #include "../include/client.h"
-#include <iostream>
 #include <vector>
 #include <windows.h>
 
 Client::Client(int clientPort, sockaddr_in serverAddr)
-    : clientPort(clientPort), serverAddr(serverAddr) {}
+    : clientPort(clientPort), serverAddr(serverAddr), logger("client.log") {}
 
 void Client::connectToServer() {
-    // initialize network environment
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "failed to create client Winsock on port " << clientPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to create client Winsock on port " + clientPort);
         return;
     }
 
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == INVALID_SOCKET) {
-        std::cerr << "failed to create client socket on port " << clientPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to create client socket on port " + clientPort);
         WSACleanup();
         return;
     }
@@ -26,23 +24,21 @@ void Client::connectToServer() {
     clientAddr.sin_addr.s_addr = INADDR_ANY;
     
     if (bind(clientSocket, (sockaddr*)&clientAddr, sizeof(clientAddr)) == SOCKET_ERROR) {
-        std::cerr << "failed to bind client socket on port " << clientPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to bind client socket on port " + clientPort);
         closeConnection();
         return;
     }
     
     if (connect(clientSocket, (SOCKADDR*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        std::cerr << "failed to connect client socket on port " << clientPort << " to server\n";
+        logger.log(LogLevel::ERR, "Failed to connect client socket on port " + std::to_string(clientPort) + " to server");
         closeConnection();
         return;
     }
-    //std::cout << "successfully connected to server from client port " << clientPort << "\n";
 }
 
 void Client::sendRequest(const std::string& request) {
-    //std::cout << "sending request from client port: " << clientPort << "\n";
     if (send(clientSocket, request.c_str(), static_cast<int>(request.size()), 0) == SOCKET_ERROR) {
-        std::cerr << "failed to send request to server from client port " << clientPort << "\n";
+        logger.log(LogLevel::ERR, "Failed to send request to server from client port " + clientPort);
     }
 }
 
@@ -59,9 +55,9 @@ void Client::receiveResponse() {
             response.append(buffer.data(), bytesRead);
         }
     } while (bytesRead > 0);
-    
-    //std::cout << "received response from server on client port " << clientPort << ", size: "
-              //<< response.size() << " bytes\n";
+
+    logger.log(LogLevel::INFO, "Received response from server on client port " +
+               std::to_string(clientPort) + " of size " + std::to_string(response.size()) + " bytes");
 }
 
 void Client::closeConnection() {

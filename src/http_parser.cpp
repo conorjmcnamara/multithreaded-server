@@ -5,7 +5,7 @@
 std::string HTTPParser::getStartLine(const std::string& request) {
     size_t endStartLine = request.find("\r\n");
     if (endStartLine != std::string::npos) {
-        return request.substr(0, endStartLine) + "\n";
+        return request.substr(0, endStartLine);
     }
     return "";
 }
@@ -26,7 +26,7 @@ std::string HTTPParser::getHeaderField(const std::string& request, const std::st
 void HTTPParser::printHeaders(const std::string& request, pthread_t threadNum) {
     std::ostringstream stream;
     stream << "\n------------- Request on server thread " << threadNum << " -------------\n";
-    stream << getStartLine(request);
+    stream << getStartLine(request) << "\n";
     stream << getHeaderField(request, "Host");
     stream << getHeaderField(request, "Connection");
     stream << getHeaderField(request, "User-Agent");
