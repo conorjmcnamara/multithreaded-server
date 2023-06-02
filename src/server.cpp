@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-std::regex Server::supportedMethods("^(GET|HEAD)");
+std::regex Server::supportedMethods("^(GET|HEAD|POST)");
 
 Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity)
     : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads), http_response(cacheCapacity) {}
@@ -163,19 +163,14 @@ void Server::processClientRequest(SOCKET clientSocket) {
     std::string request(buffer.data());
     http_parser.printHeaders(request, pthread_self());
 
+    // check that the method is supported
     std::string method = getMethodType(request);
     if (method.empty()) {
         return;
     }
 
-    size_t startFilePath = request.find(' ');
-    size_t endFilePath = request.find(' ', startFilePath + 1);
-
-    if (startFilePath != std::string::npos && endFilePath != std::string::npos) {
-        std::string filePath = "../static/" + request.substr(startFilePath + 1, endFilePath - startFilePath - 1);
-        std::string response = http_response.makeResponse(filePath, method);
-        send(clientSocket, response.c_str(), response.size(), 0);
-    }
+    std::string response = http_response.makeResponse(request, method);
+    send(clientSocket, response.c_str(), response.size(), 0);
 }
 
 void Server::cleanup() {
