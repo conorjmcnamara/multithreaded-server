@@ -4,7 +4,7 @@
 HTTPResponse::HTTPResponse(int cacheCapacity)
     : file_manager(cacheCapacity) {}
 
-const std::unordered_map<std::string, std::string> HTTPResponse::contentTypeMap = {
+const std::unordered_map<std::string, std::string> HTTPResponse::mimeTypesMap = {
     { "html", "text/html" },
     { "css", "text/css" },
     { "js", "text/javascript" },
@@ -22,8 +22,8 @@ std::string HTTPResponse:: getContentType(const std::string& filePath) {
     }
 
     std::string extension = filePath.substr(dotIndex + 1);
-    auto iterator = contentTypeMap.find(extension);
-    if (iterator != contentTypeMap.end()) {
+    auto iterator = mimeTypesMap.find(extension);
+    if (iterator != mimeTypesMap.end()) {
         return iterator->second;
     }
     else {
