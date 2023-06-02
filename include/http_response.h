@@ -9,7 +9,7 @@ public:
     std::string makeResponse(const std::string& request, const std::string& method);
 
 private:
-    static const std::unordered_map<std::string, std::string> contentTypeMap;
+    static const std::unordered_map<std::string, std::string> mimeTypesMap;
     FileManager file_manager;
     std::string getFilePath(const std::string& request);
     std::string getContentType(const std::string& filePath);
