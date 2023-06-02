@@ -1,6 +1,7 @@
 #pragma once
 #include "http_parser.h"
 #include "http_response.h"
+#include "logger.h"
 #include <string>
 #include <queue>
 #include <pthread.h>
@@ -27,6 +28,7 @@ private:
     pthread_cond_t condition;
     HTTPParser http_parser;
     HTTPResponse http_response;
+    Logger logger;
     static std::regex supportedMethods;
 
     void initSocket();
