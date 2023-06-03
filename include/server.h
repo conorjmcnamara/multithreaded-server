@@ -6,7 +6,6 @@
 #include <queue>
 #include <pthread.h>
 #include <windows.h>
-#include <regex>
 
 class Server {
 public:
@@ -29,7 +28,6 @@ private:
     HTTPParser http_parser;
     HTTPResponse http_response;
     Logger logger;
-    static std::regex supportedMethods;
 
     void initSocket();
     void initThreadPool();
@@ -39,7 +37,6 @@ private:
     SOCKET acceptClientConnection();
     void enqueueClientRequest(SOCKET clientSocket);
     SOCKET dequeueClientRequest();
-    std::string getMethodType(const std::string& request);
     void processClientRequest(SOCKET clientSocket);
     void cleanup();
 };

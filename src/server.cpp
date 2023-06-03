@@ -8,8 +8,6 @@ Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int 
     : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads),
     http_response(cacheCapacity), logger("server.log") {}
 
-std::regex Server::supportedMethods("^(GET|HEAD)");
-
 void Server::start() {
     if (isRunning) {
         logger.log(LogLevel::ERR, "Server is already running");
@@ -143,14 +141,6 @@ SOCKET Server::dequeueClientRequest() {
     return clientSocket;
 }
 
-std::string Server::getMethodType(const std::string& request) {
-    std::smatch match;
-    if (std::regex_search(request, match, supportedMethods)){
-        return match.str(1);
-    }
-    return "";
-}
-
 void Server::processClientRequest(SOCKET clientSocket) {
     constexpr int bufferSize = 1024;
     std::vector<char> buffer(bufferSize, '\0');
@@ -165,13 +155,8 @@ void Server::processClientRequest(SOCKET clientSocket) {
     http_parser.printHeaders(request, pthread_self());
     logger.log(LogLevel::INFO, http_parser.getStartLine(request));
 
-    // check that the method is supported
-    std::string method = getMethodType(request);
-    if (method.empty()) {
-        return;
-    }
-
-    std::string response = http_response.makeResponse(request, method);
+    std::string response = http_response.makeResponse(request);
+    logger.log(LogLevel::INFO, http_parser.getStartLine(response));
     send(clientSocket, response.c_str(), response.size(), 0);
 }
 
