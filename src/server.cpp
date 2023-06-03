@@ -152,11 +152,10 @@ void Server::processClientRequest(SOCKET clientSocket) {
     }
 
     std::string request(buffer.data());
-    http_parser.printHeaders(request, pthread_self());
-    logger.log(LogLevel::INFO, http_parser.getStartLine(request));
-
     std::string response = http_response.makeResponse(request);
-    logger.log(LogLevel::INFO, http_parser.getStartLine(response));
+
+    logger.log(LogLevel::INFO, http_parser.getHeaderField(request, "Host"), http_parser.getStartLine(request),
+               http_parser.getResponseCode(response));
     send(clientSocket, response.c_str(), response.size(), 0);
 }
 
