@@ -1,9 +1,12 @@
 #include "../include/http_response.h"
 #include <sstream>
+#include <regex>
 
 HTTPResponse::HTTPResponse(int cacheCapacity)
     : file_manager(cacheCapacity) {}
 
+const std::string HTTPResponse::supportedMethodsStr = "GET, HEAD";
+const std::unordered_set<std::string> HTTPResponse::supportedMethodsSet = {"GET", "HEAD"};
 const std::unordered_map<std::string, std::string> HTTPResponse::mimeTypesMap = {
     { "html", "text/html" },
     { "css", "text/css" },
@@ -13,6 +16,17 @@ const std::unordered_map<std::string, std::string> HTTPResponse::mimeTypesMap = 
     { "jpeg", "image/jpeg" },
     { "gif", "image/gif" }
 };
+
+std::string HTTPResponse::getMethodType(const std::string& request) {
+    size_t firstSpace = request.find(' ');
+    if (firstSpace != std::string::npos) {
+        std::string method = request.substr(0, firstSpace);
+        if (supportedMethodsSet.find(method) != supportedMethodsSet.end()) {
+            return method;
+        }
+    }
+    return "";
+}
 
 std::string HTTPResponse:: getContentType(const std::string& filePath) {
     size_t dotIndex = filePath.find_last_of('.');
@@ -40,7 +54,12 @@ std::string HTTPResponse::getFilePath(const std::string& request) {
     return "";
 }
 
-std::string HTTPResponse::makeResponse(const std::string& request, const std::string& method) {
+std::string HTTPResponse::makeResponse(const std::string& request) {
+    std::string method = getMethodType(request);
+    if (method.empty()) {
+        return makeErrorResponse(405, "Method Not Allowed");
+    }
+
     std::string filePath = getFilePath(request);
     if (filePath.empty()) {
         return makeErrorResponse(404, "Not Found");
@@ -72,7 +91,12 @@ std::string HTTPResponse::makeErrorResponse(int statusCode, const std::string& s
     std::ostringstream stream;
     stream << "HTTP/1.1 " << statusCode << " " << statusMessage << "\r\n";
     stream << "Content-Length: " << content.str().size() << "\r\n";
-    stream << "Content-Type: text/html\r\n\r\n";
-    stream << content.str();
+    stream << "Content-Type: text/html\r\n";
+
+    if (statusCode == 405) {
+        stream << "Allow: " << supportedMethodsStr << "\r\n";
+    }
+
+    stream << "\r\n" << content.str();
     return stream.str();
 }

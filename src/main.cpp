@@ -43,9 +43,9 @@ void simulateConcurrentRequests(sockaddr_in serverAddr, int numClients) {
 
 int main() {
     std::string serverIP = "127.0.0.1";
-    int serverPort = 8080;
-    int maxThreads = 10;
-    int cacheCapacity = 10;
+    constexpr int serverPort = 8080;
+    constexpr int maxThreads = 10;
+    constexpr int cacheCapacity = 10;
     Server server(serverIP, serverPort, maxThreads, cacheCapacity);
     pthread_t serverThread;
     pthread_create(&serverThread, nullptr, startServer, &server);
