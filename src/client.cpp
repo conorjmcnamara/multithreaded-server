@@ -8,13 +8,13 @@ Client::Client(int clientPort, sockaddr_in serverAddr)
 void Client::connectToServer() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        logger.log(LogLevel::ERR, "Failed to create client Winsock on port " + clientPort);
+        logger.log(LogLevel::ERR, "Failed to create client Winsock on port " + std::to_string(clientPort));
         return;
     }
 
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (clientSocket == INVALID_SOCKET) {
-        logger.log(LogLevel::ERR, "Failed to create client socket on port " + clientPort);
+        logger.log(LogLevel::ERR, "Failed to create client socket on port " + std::to_string(clientPort));
         WSACleanup();
         return;
     }
@@ -24,7 +24,7 @@ void Client::connectToServer() {
     clientAddr.sin_addr.s_addr = INADDR_ANY;
     
     if (bind(clientSocket, (sockaddr*)&clientAddr, sizeof(clientAddr)) == SOCKET_ERROR) {
-        logger.log(LogLevel::ERR, "Failed to bind client socket on port " + clientPort);
+        logger.log(LogLevel::ERR, "Failed to bind client socket on port " + std::to_string(clientPort));
         closeConnection();
         return;
     }
@@ -38,7 +38,7 @@ void Client::connectToServer() {
 
 void Client::sendRequest(const std::string& request) {
     if (send(clientSocket, request.c_str(), static_cast<int>(request.size()), 0) == SOCKET_ERROR) {
-        logger.log(LogLevel::ERR, "Failed to send request to server from client port " + clientPort);
+        logger.log(LogLevel::ERR, "Failed to send request to server from client port " + std::to_string(clientPort));
     }
 }
 
@@ -55,9 +55,6 @@ void Client::receiveResponse() {
             response.append(buffer.data(), bytesRead);
         }
     } while (bytesRead > 0);
-
-    logger.log(LogLevel::INFO, "Received response from server on client port " +
-               std::to_string(clientPort) + " of size " + std::to_string(response.size()) + " bytes");
 }
 
 void Client::closeConnection() {

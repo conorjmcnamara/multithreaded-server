@@ -11,27 +11,19 @@ std::string HTTPParser::getStartLine(const std::string& request) {
 }
 
 std::string HTTPParser::getHeaderField(const std::string& request, const std::string& fieldName) {
-    std::string field = fieldName + ": ";
-    size_t startHeader = request.find(field);
-    if (startHeader != std::string::npos) {
-        size_t endHeader = request.find("\r\n", startHeader);
+    size_t startHeaderField = request.find(fieldName + ": ");
+    if (startHeaderField != std::string::npos) {
+        size_t endHeaderField = request.find("\r\n", startHeaderField);
 
-        if (endHeader != std::string::npos) {
-            return request.substr(startHeader, endHeader - startHeader) + "\n";
+        if (endHeaderField != std::string::npos) {
+            size_t startHeaderFieldVal = startHeaderField + fieldName.length() + 2;
+            return request.substr(startHeaderFieldVal, endHeaderField - startHeaderFieldVal);
         }
     }
     return "";
 }
 
-void HTTPParser::printHeaders(const std::string& request, pthread_t threadNum) {
-    std::ostringstream stream;
-    stream << "\n------------- Request on server thread " << threadNum << " -------------\n";
-    stream << getStartLine(request) << "\n";
-    stream << getHeaderField(request, "Host");
-    stream << getHeaderField(request, "Connection");
-    stream << getHeaderField(request, "User-Agent");
-    stream << getHeaderField(request, "Referer");
-    stream << getHeaderField(request, "Accept-Encoding");
-    stream << getHeaderField(request, "Accept-Language");
-    std::cout << stream.str();
+std::string HTTPParser::getResponseCode(const std::string& response) {
+    size_t startCode = response.find(' ') + 1;
+    return response.substr(startCode, 3);
 }

@@ -11,11 +11,15 @@ class Logger {
 public:
     Logger(const std::string& logFile);
     void log(LogLevel level, const std::string& message);
-
+    void log(LogLevel level, const std::string& ip, const std::string& startLine, const std::string& responseCode);
+    
 private:
-    const std::string logFile;
+    bool hasCreatedLogFile;
+    const std::string filePath;
     pthread_mutex_t logMutex;
 
-    std::string getTime();
     bool createLogFileIfNotExists(const std::string& filePath);
+    std::string getLogLevelStr(LogLevel level);
+    std::string getTime();
+    void writeLog(const std::string& logLine);
 };

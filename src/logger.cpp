@@ -6,7 +6,8 @@
 #include <iomanip>
 
 Logger::Logger(const std::string& logFile)
-    : logFile(logFile) {
+    : filePath("../logs/" + logFile) {
+    hasCreatedLogFile = createLogFileIfNotExists(filePath);
     pthread_mutex_init(&logMutex, nullptr);
 }
 
@@ -19,10 +20,21 @@ bool Logger::createLogFileIfNotExists(const std::string& filePath) {
     std::filesystem::create_directories(logFilePath.parent_path());
     std::ofstream createFileStream(logFilePath);
     if (!createFileStream) {
-        std::cerr << "Failed to create log file at " << filePath << "\n";
+        std::cerr << "Failed to create log file at " << filePath << '\n';
         return false;
     }
     return true;
+}
+
+std::string Logger::getLogLevelStr(LogLevel level) {
+    switch (level) {
+        case LogLevel::INFO:
+            return "[INFO]";
+        case LogLevel::ERR:
+            return "[ERROR]";
+        default:
+            return "";
+    }
 }
 
 std::string Logger::getTime() {
@@ -32,31 +44,38 @@ std::string Logger::getTime() {
     return timeStream.str();
 }
 
-void Logger::log(LogLevel level, const std::string& message) {
+void Logger::writeLog(const std::string& logLine) {
     pthread_mutex_lock(&logMutex);
-    std::string logLevelStr;
-    switch (level) {
-        case LogLevel::INFO:
-            logLevelStr = "[INFO]";
-            break;
-        case LogLevel::ERR:
-            logLevelStr = "[ERROR]";
-            break;
-    }
-
-    std::string filePath = "../logs/" + logFile;
-    if (!createLogFileIfNotExists(filePath)) {
-        pthread_mutex_unlock(&logMutex);
-        return;
-    }
-
     std::ofstream logFileStream(filePath, std::ios::app);
     if (logFileStream.is_open()) {
-        logFileStream << getTime() << " " << logLevelStr << " " << message << "\n";
+        logFileStream << logLine << '\n';
         logFileStream.close();
     }
     else {
-        std::cerr << "Failed to open log file at " << filePath << "\n";
+        std::cerr << "Failed to open log file at " << filePath << '\n';
     }
     pthread_mutex_unlock(&logMutex);
+    std::cout << logLine << '\n';
+}
+
+void Logger::log(LogLevel level, const std::string& message) {
+    if (!hasCreatedLogFile) {
+        return;
+    }
+    std::string logLevelStr = getLogLevelStr(level);
+    if (logLevelStr.empty()) {
+        return;
+    }
+    writeLog(getTime() + ' ' + logLevelStr + ' ' + message);
+}
+
+void Logger::log(LogLevel level, const std::string& ip, const std::string& startLine, const std::string& responseCode) {
+    if (!hasCreatedLogFile) {
+        return;
+    }
+    std::string logLevelStr = getLogLevelStr(level);
+    if (logLevelStr.empty()) {
+        return;
+    }
+    writeLog(getTime() + ' ' + logLevelStr + ' ' + ip + " \"" + startLine + "\" " + responseCode);
 }
