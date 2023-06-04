@@ -7,11 +7,23 @@ enum class LogLevel {
     ERR
 };
 
+struct LogData {
+    std::string ip;
+    LogLevel level;
+    std::string startLine;
+    std::string responseCode;
+    std::string responseSize;
+
+    LogData(const std::string& ip, LogLevel level, const std::string& startLine,
+            const std::string& responseCode, const std::string& responseSize)
+        : ip(ip), level(level), startLine(startLine), responseCode(responseCode), responseSize(responseSize) {}
+};
+
 class Logger {
 public:
     Logger(const std::string& logFile);
     void log(LogLevel level, const std::string& message);
-    void log(LogLevel level, const std::string& ip, const std::string& startLine, const std::string& responseCode);
+    void log(LogData logData);
     
 private:
     bool hasCreatedLogFile;

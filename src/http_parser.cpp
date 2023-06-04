@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 
-std::string HTTPParser::getStartLine(const std::string& request) {
+std::string HttpParser::getStartLine(const std::string& request) {
     size_t endStartLine = request.find("\r\n");
     if (endStartLine != std::string::npos) {
         return request.substr(0, endStartLine);
@@ -10,20 +10,20 @@ std::string HTTPParser::getStartLine(const std::string& request) {
     return "";
 }
 
-std::string HTTPParser::getHeaderField(const std::string& request, const std::string& fieldName) {
-    size_t startHeaderField = request.find(fieldName + ": ");
+std::string HttpParser::getHeaderFieldVal(const std::string& message, const std::string& field) {
+    size_t startHeaderField = message.find(field + ": ");
     if (startHeaderField != std::string::npos) {
-        size_t endHeaderField = request.find("\r\n", startHeaderField);
+        size_t endHeaderField = message.find("\r\n", startHeaderField);
 
         if (endHeaderField != std::string::npos) {
-            size_t startHeaderFieldVal = startHeaderField + fieldName.length() + 2;
-            return request.substr(startHeaderFieldVal, endHeaderField - startHeaderFieldVal);
+            size_t startHeaderFieldVal = startHeaderField + field.length() + 2;
+            return message.substr(startHeaderFieldVal, endHeaderField - startHeaderFieldVal);
         }
     }
     return "";
 }
 
-std::string HTTPParser::getResponseCode(const std::string& response) {
+std::string HttpParser::getResponseCode(const std::string& response) {
     size_t startCode = response.find(' ') + 1;
     return response.substr(startCode, 3);
 }
