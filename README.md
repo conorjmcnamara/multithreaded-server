@@ -23,7 +23,7 @@ $ curl -i http://127.0.0.1:8080/index.html
 # HEAD request
 $ curl -I http://127.0.0.1:8080/index.html
 
-# DELETE request (405 method not allowed)
+# DELETE request (405 Method Not Allowed)
 $ curl -X DELETE -i http://127.0.0.1:8080/
 ```
 
@@ -43,10 +43,10 @@ A thread and memory-safe Least Recently Used (LRU) cache is implemented with sma
 
 ### Logging
 
-```bash
-# log form
-[timestamp] [log level] [IP] [HTTP start line] [response code]
+The server logs every response with the following format:
+> [IP] - [timestamp] [log level] [HTTP start line] [response code] [response size in bytes]
 
+```bash
 # example log
-2023-06-03 18:44:20 [INFO] 127.0.0.1:8080 "GET /index.html HTTP/1.1" 200
+127.0.0.1:8080 - 2023-06-04 20:13:23 [INFO] "GET /index.html HTTP/1.1" 200 617
 ```

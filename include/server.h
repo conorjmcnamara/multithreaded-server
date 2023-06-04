@@ -25,8 +25,8 @@ private:
     std::queue<pthread_t> threadQueue;
     pthread_mutex_t mutex;
     pthread_cond_t condition;
-    HTTPParser http_parser;
-    HTTPResponse http_response;
+    HttpParser http_parser;
+    HttpResponse http_response;
     Logger logger;
 
     void initSocket();

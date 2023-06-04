@@ -39,13 +39,13 @@ sockaddr_in Server::getServerAddr() {
 void Server::initSocket() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        logger.log(LogLevel::ERR, "Failed to create server Winsock on port " + serverPort);
+        logger.log(LogLevel::ERR, "Failed to create server Winsock on port " + std::to_string(serverPort));
         return;
     }
 
     serverSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (serverSocket == INVALID_SOCKET) {
-        logger.log(LogLevel::ERR, "Failed to create server socket on port " + serverPort);
+        logger.log(LogLevel::ERR, "Failed to create server socket on port " + std::to_string(serverPort));
         WSACleanup();
         return;
     }
@@ -55,14 +55,14 @@ void Server::initSocket() {
     serverAddr.sin_addr.s_addr =  inet_addr(serverIP.c_str());
     
     if (bind(serverSocket, (sockaddr*)&serverAddr, sizeof(serverAddr)) == SOCKET_ERROR) {
-        logger.log(LogLevel::ERR, "Failed to bind server socket on port " + serverPort);
+        logger.log(LogLevel::ERR, "Failed to bind server socket on port " + std::to_string(serverPort));
         stop();
         return;
     }
 
     // set the server's socket state to listen
     if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
-        logger.log(LogLevel::ERR, "Failed to listen on server socket on port " + serverPort);
+        logger.log(LogLevel::ERR, "Failed to listen on server socket on port " + std::to_string(serverPort));
         stop();
         return;
     }
@@ -154,8 +154,10 @@ void Server::processClientRequest(SOCKET clientSocket) {
     std::string request(buffer.data());
     std::string response = http_response.makeResponse(request);
 
-    logger.log(LogLevel::INFO, http_parser.getHeaderField(request, "Host"), http_parser.getStartLine(request),
-               http_parser.getResponseCode(response));
+    logger.log(LogData(http_parser.getHeaderFieldVal(request, "Host"), LogLevel::INFO,
+               http_parser.getStartLine(request), http_parser.getResponseCode(response),
+               http_parser.getHeaderFieldVal(response, "Content-Length")));
+
     send(clientSocket, response.c_str(), response.size(), 0);
 }
 

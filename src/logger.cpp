@@ -20,10 +20,23 @@ bool Logger::createLogFileIfNotExists(const std::string& filePath) {
     std::filesystem::create_directories(logFilePath.parent_path());
     std::ofstream createFileStream(logFilePath);
     if (!createFileStream) {
-        std::cerr << "Failed to create log file at " << filePath << '\n';
+        std::cerr << "Failed to create log file at " << filePath << "\n";
         return false;
     }
     return true;
+}
+
+void Logger::log(LogLevel level, const std::string& message) {
+    if (hasCreatedLogFile) {
+        writeLog(getTime() + " " + getLogLevelStr(level) + " " + message);
+    }
+}
+
+void Logger::log(LogData logData) {
+    if (hasCreatedLogFile) {
+        writeLog(logData.ip + " - " + getTime() + " " + getLogLevelStr(logData.level) + " \"" +
+                 logData.startLine + "\" " + logData.responseCode + " " + logData.responseSize);
+    }
 }
 
 std::string Logger::getLogLevelStr(LogLevel level) {
@@ -48,34 +61,12 @@ void Logger::writeLog(const std::string& logLine) {
     pthread_mutex_lock(&logMutex);
     std::ofstream logFileStream(filePath, std::ios::app);
     if (logFileStream.is_open()) {
-        logFileStream << logLine << '\n';
+        logFileStream << logLine << "\n";
         logFileStream.close();
     }
     else {
-        std::cerr << "Failed to open log file at " << filePath << '\n';
+        std::cerr << "Failed to open log file at " << filePath << "\n";
     }
     pthread_mutex_unlock(&logMutex);
-    std::cout << logLine << '\n';
-}
-
-void Logger::log(LogLevel level, const std::string& message) {
-    if (!hasCreatedLogFile) {
-        return;
-    }
-    std::string logLevelStr = getLogLevelStr(level);
-    if (logLevelStr.empty()) {
-        return;
-    }
-    writeLog(getTime() + ' ' + logLevelStr + ' ' + message);
-}
-
-void Logger::log(LogLevel level, const std::string& ip, const std::string& startLine, const std::string& responseCode) {
-    if (!hasCreatedLogFile) {
-        return;
-    }
-    std::string logLevelStr = getLogLevelStr(level);
-    if (logLevelStr.empty()) {
-        return;
-    }
-    writeLog(getTime() + ' ' + logLevelStr + ' ' + ip + " \"" + startLine + "\" " + responseCode);
+    std::cout << logLine << "\n";
 }
