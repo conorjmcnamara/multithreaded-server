@@ -39,24 +39,6 @@ void Logger::log(LogData logData) {
     }
 }
 
-std::string Logger::getLogLevelStr(LogLevel level) {
-    switch (level) {
-        case LogLevel::INFO:
-            return "[INFO]";
-        case LogLevel::ERR:
-            return "[ERROR]";
-        default:
-            return "";
-    }
-}
-
-std::string Logger::getTime() {
-    std::time_t currentTime = std::time(nullptr);
-    std::stringstream timeStream;
-    timeStream << std::put_time(std::localtime(&currentTime), "%Y-%m-%d %H:%M:%S");
-    return timeStream.str();
-}
-
 void Logger::writeLog(const std::string& logLine) {
     pthread_mutex_lock(&logMutex);
     std::ofstream logFileStream(filePath, std::ios::app);
@@ -69,4 +51,22 @@ void Logger::writeLog(const std::string& logLine) {
     }
     pthread_mutex_unlock(&logMutex);
     std::cout << logLine << "\n";
+}
+
+std::string Logger::getTime() {
+    std::time_t currentTime = std::time(nullptr);
+    std::stringstream timeStream;
+    timeStream << std::put_time(std::localtime(&currentTime), "%Y-%m-%d %H:%M:%S");
+    return timeStream.str();
+}
+
+std::string Logger::getLogLevelStr(LogLevel level) {
+    switch (level) {
+        case LogLevel::INFO:
+            return "[INFO]";
+        case LogLevel::ERR:
+            return "[ERROR]";
+        default:
+            return "";
+    }
 }

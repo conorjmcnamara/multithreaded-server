@@ -27,15 +27,6 @@ void Server::start() {
     }
 }
 
-void Server::stop() {
-    isRunning = false;
-    cleanup();
-}
-
-sockaddr_in Server::getServerAddr() {
-    return serverAddr;
-}
-
 void Server::initSocket() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
@@ -74,6 +65,14 @@ void Server::initThreadPool() {
     addWorkerThread();
 }
 
+void Server::addWorkerThread() {
+    pthread_t thread;
+    pthread_create(&thread, nullptr, workerThreadRoutine, this);
+    pthread_mutex_lock(&mutex);
+    threadQueue.push(thread);
+    pthread_mutex_unlock(&mutex);
+}
+
 void* Server::workerThreadRoutine(void* serverPtr) {
     Server* server = static_cast<Server*>(serverPtr);
     while (server->isRunning) {
@@ -84,14 +83,6 @@ void* Server::workerThreadRoutine(void* serverPtr) {
         }
     }
     return nullptr;
-}
-
-void Server::addWorkerThread() {
-    pthread_t thread;
-    pthread_create(&thread, nullptr, workerThreadRoutine, this);
-    pthread_mutex_lock(&mutex);
-    threadQueue.push(thread);
-    pthread_mutex_unlock(&mutex);
 }
 
 void Server::removeWorkerThread() {
@@ -107,6 +98,21 @@ void Server::removeWorkerThread() {
         pthread_cancel(thread);
         pthread_detach(thread);
     }
+}
+
+void Server::stop() {
+    isRunning = false;
+    cleanup();
+}
+
+void Server::cleanup() {
+    while (!threadQueue.empty()) {
+        removeWorkerThread();
+    }
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&condition);
+    closesocket(serverSocket);
+    WSACleanup();
 }
 
 SOCKET Server::acceptClientConnection() {
@@ -145,7 +151,7 @@ void Server::processClientRequest(SOCKET clientSocket) {
     constexpr int bufferSize = 1024;
     std::vector<char> buffer(bufferSize, '\0');
 
-    // get request data from the client socket
+    // read request data from the client socket
     int bytesRead = recv(clientSocket, buffer.data(), bufferSize - 1, 0);
     if (bytesRead == 0) {
         return;
@@ -161,12 +167,6 @@ void Server::processClientRequest(SOCKET clientSocket) {
     send(clientSocket, response.c_str(), response.size(), 0);
 }
 
-void Server::cleanup() {
-    while (!threadQueue.empty()) {
-        removeWorkerThread();
-    }
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&condition);
-    closesocket(serverSocket);
-    WSACleanup();
+sockaddr_in Server::getServerAddr() {
+    return serverAddr;
 }

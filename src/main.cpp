@@ -1,5 +1,6 @@
 #include "../include/server.h"
 #include "../include/client.h"
+#include "utils.cpp"
 #include <memory>
 #include <unistd.h>
 
@@ -42,10 +43,12 @@ void simulateConcurrentRequests(sockaddr_in serverAddr, int numClients) {
 }
 
 int main() {
-    std::string serverIP = "127.0.0.1";
-    constexpr int serverPort = 8080;
-    constexpr int maxThreads = 10;
-    constexpr int cacheCapacity = 10;
+    std::unordered_map<std::string, std::string> envVariables = parseEnvFile(".env");
+    std::string serverIP = envVariables["SERVER_IP"];
+    int serverPort = envStrToInt(envVariables["SERVER_PORT"]);
+    int maxThreads = envStrToInt(envVariables["MAX_THREADS"]);
+    int cacheCapacity = envStrToInt(envVariables["CACHE_CAPACITY"]);
+
     Server server(serverIP, serverPort, maxThreads, cacheCapacity);
     pthread_t serverThread;
     pthread_create(&serverThread, nullptr, startServer, &server);

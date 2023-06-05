@@ -31,12 +31,13 @@ private:
 
     void initSocket();
     void initThreadPool();
-    static void* workerThreadRoutine(void* serverPtr);
     void addWorkerThread();
+    static void* workerThreadRoutine(void* serverPtr);
     void removeWorkerThread();
+    void cleanup();
     SOCKET acceptClientConnection();
     void enqueueClientRequest(SOCKET clientSocket);
     SOCKET dequeueClientRequest();
     void processClientRequest(SOCKET clientSocket);
-    void cleanup();
+    
 };

@@ -2,6 +2,9 @@
 #include <sstream>
 #include <iostream>
 
+const std::string HttpParser::supportedMethodsStr = "GET, HEAD, POST";
+const std::unordered_set<std::string> HttpParser::supportedMethodsSet = {"GET", "HEAD", "POST"};
+
 std::string HttpParser::getStartLine(const std::string& request) {
     size_t endStartLine = request.find("\r\n");
     if (endStartLine != std::string::npos) {
@@ -21,6 +24,53 @@ std::string HttpParser::getHeaderFieldVal(const std::string& message, const std:
         }
     }
     return "";
+}
+
+std::string HttpParser::getHttpMethod(const std::string& request) {
+    size_t firstSpace = request.find(' ');
+    if (firstSpace != std::string::npos) {
+        std::string method = request.substr(0, firstSpace);
+        if (supportedMethodsSet.find(method) != supportedMethodsSet.end()) {
+            return method;
+        }
+    }
+    return "";
+}
+
+std::string HttpParser::getFilePath(const std::string& request) {
+    std::string endpoint = getEndpoint(request);
+    if (endpoint.empty()) {
+        return "";
+    }
+    return "../static" + endpoint;
+}
+
+std::string HttpParser::getEndpoint(const std::string& request) {
+    size_t startEndpoint = request.find(' ');
+    if (startEndpoint == std::string::npos) {
+        return "";
+    }
+    size_t endEndpoint = request.find(' ', startEndpoint + 1);
+    if (endEndpoint == std::string::npos) {
+        return "";
+    }
+    return request.substr(startEndpoint + 1, endEndpoint - startEndpoint -1);
+}
+
+std::string HttpParser::getPayload(const std::string& request) {
+    std::istringstream iss(request);
+    std::string line;
+
+    // skip headers
+    while (std::getline(iss, line)) {
+        if (line.empty() || line == "\r") {
+            break;
+        }
+    }
+
+    std::string payload;
+    std::getline(iss, payload);
+    return payload;
 }
 
 std::string HttpParser::getResponseCode(const std::string& response) {
