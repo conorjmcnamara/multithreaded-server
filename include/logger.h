@@ -31,7 +31,7 @@ private:
     pthread_mutex_t logMutex;
 
     bool createLogFileIfNotExists(const std::string& filePath);
-    std::string getLogLevelStr(LogLevel level);
-    std::string getTime();
     void writeLog(const std::string& logLine);
+    std::string getTime();
+    std::string getLogLevelStr(LogLevel level);
 };
