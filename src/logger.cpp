@@ -50,7 +50,6 @@ void Logger::writeLog(const std::string& logLine) {
         std::cerr << "Failed to open log file at " << filePath << "\n";
     }
     pthread_mutex_unlock(&logMutex);
-    std::cout << logLine << "\n";
 }
 
 std::string Logger::getTime() {
