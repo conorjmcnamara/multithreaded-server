@@ -10,7 +10,7 @@ void* startServer(void* serverPtr) {
     return nullptr;
 }
 
-void* startClientRequest(void* clientPtr) {
+void* makeClientRequest(void* clientPtr) {
     Client* client = static_cast<Client*>(clientPtr);
     client->connectToServer();
     client->sendRequest("GET /index.html HTTP/1.1\r\nHost: 127.0.0.1\r\n\r\n");
@@ -32,7 +32,7 @@ void simulateConcurrentRequests(sockaddr_in serverAddr, int numClients) {
     std::vector<pthread_t> clientThreads;
     for (const auto& client : clients) {
         pthread_t clientThread;
-        pthread_create(&clientThread, nullptr, startClientRequest, client.get());
+        pthread_create(&clientThread, nullptr, makeClientRequest, client.get());
         clientThreads.push_back(clientThread);
     }
     
