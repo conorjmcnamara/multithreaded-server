@@ -55,7 +55,7 @@ As a demonstration, the server routes POST requests to a Python Flask API via Cu
 
 ### Multi-threading and Scheduling
 
-The server runs on its own thread and when client requests arrive, the server pushes them to a queue and dynamically creates new worker threads to process them concurrently up to a threshold ```maxThreads```. When this value is reached, incoming requests wait in the queue until one of the threads dequeues and processes it.
+The server runs on its own thread and when client requests arrive, the server pushes them to a queue and dynamically creates new worker threads to process them concurrently up to a threshold ```MAX_THREADS```. When this value is reached, incoming requests wait in the queue until one of the threads dequeues and processes it.
 
 Mutex locks are used to prevent simultaneous access of shared resources by ensuring only one thread has access at a time. Condition variables are used to enable running threads to standby efficiently until some condition is met before proceeding, which involves the thread releasing its mutex lock and sleeping until signaled.
 
@@ -75,14 +75,12 @@ The server logs each client response with the following format:
 
 ### Performance Testing
 
-The web server was benchmarked with the following Apache Bench command:
+The web server was benchmarked with the Apache Bench command below. The server processed 11,000 reqs/sec:
 
 ```bash
 # 1000 requests over 10 concurrent threads
 $ ab -n 1000 -c 10 http://127.0.0.1:8080/index.html
 ```
-
-The server was capable of processing 11,000 reqs/sec. The results are listed below:
 
 ```
 This is ApacheBench, Version 2.3 <$Revision: 1903618 $>
