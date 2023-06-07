@@ -39,5 +39,4 @@ private:
     void enqueueClientRequest(SOCKET clientSocket);
     SOCKET dequeueClientRequest();
     void processClientRequest(SOCKET clientSocket);
-    
 };

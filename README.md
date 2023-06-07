@@ -49,9 +49,9 @@ $ curl -X POST -d "username=John%20Doe" -H "Content-Type: application/x-www-form
 
 ### Web Server and Microservice APIs
 
-The web server binds to a given port on a given address and listens for incoming HTTP requests. Allowing external APIs to interface with the web server reduces its workload and improves scalability. These APIs can implement the high-level application-specific logic for certain routes needed for files stored on the server. Certain requests, such as POST, are dynamic and processing these may require interacting with databases or other services. 
+The web server binds to a given port on a given address and listens for incoming HTTP requests. Allowing external APIs to interface with the web server reduces its workload and improves scalability. These APIs can implement the high-level application-specific logic for certain routes needed for files stored on the server. Certain requests, such as POST, are dynamic and processing these may require interacting with databases or other services.
 
-As a demonstration, the server routes POST requests to a Python Flask API via Curl, and receives a result back. Note that the API can be implemented with any language or architecture so long as it communicates appropriately with the server.
+As a demonstration, the server routes POST requests to a Python Flask API via Curl. Note that the API can be implemented with any language or architecture so long as it communicates appropriately with the server.
 
 ### Multi-threading and Scheduling
 
