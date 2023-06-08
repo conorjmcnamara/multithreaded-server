@@ -10,6 +10,10 @@ LRUCache::LRUCache(int capacity)
     pthread_mutex_init(&cacheMutex, nullptr);
 }
 
+LRUCache::~LRUCache() {
+    pthread_mutex_destroy(&cacheMutex);
+}
+
 std::string LRUCache::get(const std::string& key) {
     pthread_mutex_lock(&cacheMutex);
     if (cache.find(key) != cache.end()) {

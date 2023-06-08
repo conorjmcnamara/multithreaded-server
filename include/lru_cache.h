@@ -17,6 +17,7 @@ struct Node {
 class LRUCache {
 public:
     LRUCache(int capacity);
+    ~LRUCache();
     std::string get(const std::string& key);
     void put(const std::string& key, const std::string& value);
 
