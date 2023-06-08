@@ -2,7 +2,7 @@
 
 A multi-threaded web server written in object-oriented C++ that uses TCP/IP sockets and POSIX threads to concurrently serve HTTP requests, delivering 11,000 reqs/sec. GET, HEAD and POST are supported.
 
-The server handles the HTTP protocol and serving static files. It also supports a microservice architecture for external API processes to act as high-level interfaces to the server, and these can implement handling for dynamic requests, such as POST. The APIs can be built with any language or architecture. For demonstration purposes, an API is implemented with Python Flask.
+The server handles the HTTP protocol and serving static files. It also supports a microservice architecture for external API processes to act as high-level developer interfaces to the server, and these can implement handling for dynamic requests, such as POST. The APIs can be built with any language or architecture. For demonstration purposes, an API is implemented with Python Flask.
 
 ## Installation
 
@@ -55,7 +55,7 @@ As a demonstration, the server routes POST requests to a Python Flask API via Cu
 
 ### Multi-threading and Scheduling
 
-The server runs on its own thread and when client requests arrive, the server pushes them to a queue and dynamically creates new worker threads to process them concurrently up to a threshold ```MAX_THREADS```. When this value is reached, incoming requests wait in the queue until one of the threads dequeues and processes it.
+The server runs on its own thread and when client requests arrive, the server pushes them to a queue and dynamically creates new worker threads to process them concurrently up to a threshold ```MAX_THREADS```. When this value is reached, incoming requests wait in the queue until one of the threads in the pool processes it.
 
 Mutex locks are used to prevent simultaneous access of shared resources by ensuring only one thread has access at a time. Condition variables are used to enable running threads to standby efficiently until some condition is met before proceeding, which involves the thread releasing its mutex lock and sleeping until signaled.
 
@@ -65,7 +65,7 @@ A thread-safe Least Recently Used (LRU) cache is implemented with smart pointers
 
 ### Logging
 
-The server logs each client response with the following format:
+The server logs client responses with the following format:
 > [IP] - [timestamp] [log level] [HTTP start line] [response code] [response size in bytes]
 
 ```bash

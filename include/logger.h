@@ -1,9 +1,12 @@
 #pragma once
 #include <string>
+#include <queue>
 #include <pthread.h>
 
 enum class LogLevel {
+    DEBUG,
     INFO,
+    WARNING,
     ERR
 };
 
@@ -22,14 +25,21 @@ struct LogData {
 class Logger {
 public:
     Logger(const std::string& logFile);
+    ~Logger();
     void log(LogLevel level, const std::string& message);
     void log(LogData logData);
+    void cleanup();
     
 private:
     bool hasCreatedLogFile;
     const std::string filePath;
+    std::queue<std::string> logQueue;
+    pthread_t logThread;
     pthread_mutex_t logMutex;
+    pthread_cond_t logCondition;
 
+    static void* logThreadRoutine(void* logger);
+    std::string dequeueLogRequest();
     bool createLogFileIfNotExists(const std::string& filePath);
     void writeLog(const std::string& logLine);
     std::string getTime();

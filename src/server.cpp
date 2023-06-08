@@ -8,6 +8,10 @@ Server::Server(const std::string& serverIP, int serverPort, int maxThreads, int 
     : serverIP(serverIP), serverPort(serverPort), maxThreads(maxThreads),
     http_response(cacheCapacity), logger("server.log") {}
 
+Server::~Server() {
+    stop();
+}
+
 void Server::start() {
     if (isRunning) {
         logger.log(LogLevel::ERR, "Server is already running");
@@ -85,36 +89,6 @@ void* Server::workerThreadRoutine(void* serverPtr) {
     return nullptr;
 }
 
-void Server::removeWorkerThread() {
-    pthread_t thread;
-    pthread_mutex_lock(&mutex);
-    if (!threadQueue.empty()) {
-        thread = threadQueue.front();
-        threadQueue.pop();
-    }
-
-    pthread_mutex_unlock(&mutex);
-    if (thread != 0) {
-        pthread_cancel(thread);
-        pthread_detach(thread);
-    }
-}
-
-void Server::stop() {
-    isRunning = false;
-    cleanup();
-}
-
-void Server::cleanup() {
-    while (!threadQueue.empty()) {
-        removeWorkerThread();
-    }
-    pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&condition);
-    closesocket(serverSocket);
-    WSACleanup();
-}
-
 SOCKET Server::acceptClientConnection() {
     return accept(serverSocket, nullptr, nullptr);
 }
@@ -165,6 +139,36 @@ void Server::processClientRequest(SOCKET clientSocket) {
                http_parser.getHeaderFieldVal(response, "Content-Length")));
 
     send(clientSocket, response.c_str(), response.size(), 0);
+}
+
+void Server::removeWorkerThread() {
+    pthread_t thread;
+    pthread_mutex_lock(&mutex);
+    if (!threadQueue.empty()) {
+        thread = threadQueue.front();
+        threadQueue.pop();
+    }
+
+    pthread_mutex_unlock(&mutex);
+    if (thread != 0) {
+        pthread_cancel(thread);
+        pthread_detach(thread);
+    }
+}
+
+void Server::stop() {
+    isRunning = false;
+    cleanup();
+}
+
+void Server::cleanup() {
+    while (!threadQueue.empty()) {
+        removeWorkerThread();
+    }
+    pthread_mutex_destroy(&mutex);
+    pthread_cond_destroy(&condition);
+    closesocket(serverSocket);
+    WSACleanup();
 }
 
 sockaddr_in Server::getServerAddr() {

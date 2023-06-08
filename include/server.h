@@ -10,6 +10,7 @@
 class Server {
 public:
     Server(const std::string& serverIP, int serverPort, int maxThreads, int cacheCapacity);
+    ~Server();
     void start();
     void stop();
     sockaddr_in getServerAddr();
@@ -33,10 +34,10 @@ private:
     void initThreadPool();
     void addWorkerThread();
     static void* workerThreadRoutine(void* serverPtr);
-    void removeWorkerThread();
-    void cleanup();
     SOCKET acceptClientConnection();
     void enqueueClientRequest(SOCKET clientSocket);
     SOCKET dequeueClientRequest();
     void processClientRequest(SOCKET clientSocket);
+    void removeWorkerThread();
+    void cleanup();
 };
