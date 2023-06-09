@@ -1,6 +1,6 @@
 # Multi-threaded Web Server
 
-A multi-threaded web server written in object-oriented C++ that uses TCP/IP sockets and POSIX threads to concurrently serve HTTP requests, delivering 11,000 reqs/sec. GET, HEAD and POST are supported.
+A multi-threaded web server written in object-oriented C++ that uses TCP/IP sockets and POSIX threads to concurrently serve HTTP requests, delivering 12,000 reqs/sec. GET, HEAD and POST are supported.
 
 The server handles the HTTP protocol and serving static files. It also supports a microservice architecture for external API processes to act as high-level developer interfaces to the server, and these can implement handling for dynamic requests, such as POST. The APIs can be built with any language or architecture. For demonstration purposes, an API is implemented with Python Flask.
 
@@ -65,7 +65,7 @@ A thread-safe Least Recently Used (LRU) cache is implemented with smart pointers
 
 ### Logging
 
-The server logs client responses with the following format:
+The server logs client responses asynchronously with the following format:
 > [IP] - [timestamp] [log level] [HTTP start line] [response code] [response size in bytes]
 
 ```bash
@@ -75,7 +75,7 @@ The server logs client responses with the following format:
 
 ### Performance Testing
 
-The web server was benchmarked with the Apache Bench command below. The server processed 11,000 reqs/sec:
+The server was benchmarked with the Apache Bench command below. The server processed 12,000 reqs/sec:
 
 ```bash
 # 1000 requests over 10 concurrent threads
@@ -109,31 +109,31 @@ Document Path:          /index.html
 Document Length:        604 bytes
 
 Concurrency Level:      10
-Time taken for tests:   0.090 seconds
+Time taken for tests:   0.082 seconds
 Complete requests:      1000
 Failed requests:        0
 Total transferred:      669000 bytes
 HTML transferred:       604000 bytes
-Requests per second:    11156.11 [#/sec] (mean)
-Time per request:       0.896 [ms] (mean)
-Time per request:       0.090 [ms] (mean, across all concurrent requests)
-Transfer rate:          7288.51 [Kbytes/sec] received
+Requests per second:    12261.66 [#/sec] (mean)
+Time per request:       0.816 [ms] (mean)
+Time per request:       0.082 [ms] (mean, across all concurrent requests)
+Transfer rate:          8010.79 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.2      0       1
-Processing:     0    1   0.4      1       2
-Waiting:        0    1   0.5      1       2
-Total:          0    1   0.4      1       2
+Connect:        0    0   0.7      0      16
+Processing:     0    1   3.3      0      16
+Waiting:        0    1   2.9      0      16
+Total:          0    1   3.4      0      16
 
 Percentage of the requests served within a certain time (ms)
-  50%      1
-  66%      1
-  75%      1
-  80%      1
-  90%      1
-  95%      1
-  98%      1
-  99%      2
- 100%      2 (longest request)
+  50%      0
+  66%      0
+  75%      0
+  80%      0
+  90%      0
+  95%      3
+  98%     16
+  99%     16
+ 100%     16 (longest request)
 ```
