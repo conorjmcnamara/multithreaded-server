@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <fstream>
 #include <queue>
 #include <pthread.h>
 
@@ -33,6 +34,7 @@ public:
 private:
     bool hasCreatedLogFile;
     const std::string filePath;
+    std::ofstream logFileStream;
     std::queue<std::string> logQueue;
     pthread_t logThread;
     pthread_mutex_t logMutex;

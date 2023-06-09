@@ -1,16 +1,20 @@
 #include "../include/logger.h"
-#include <fstream>
 #include <iostream>
-#include <filesystem>
 #include <sstream>
-#include <iomanip>
+#include <filesystem>
 
 Logger::Logger(const std::string& logFile)
     : filePath("../logs/" + logFile) {
     hasCreatedLogFile = createLogFileIfNotExists(filePath);
-    pthread_mutex_init(&logMutex, nullptr);
-    pthread_cond_init(&logCondition, nullptr);
-    pthread_create(&logThread, nullptr, logThreadRoutine, this);
+    if (hasCreatedLogFile) {
+        logFileStream.open(filePath, std::ios::app);
+        if (!logFileStream.is_open()) {
+            std::cerr << "Failed to open log file at " << filePath << "\n";
+        }
+        pthread_mutex_init(&logMutex, nullptr);
+        pthread_cond_init(&logCondition, nullptr);
+        pthread_create(&logThread, nullptr, logThreadRoutine, this);
+    }
 }
 
 Logger::~Logger() {
@@ -22,7 +26,6 @@ bool Logger::createLogFileIfNotExists(const std::string& filePath) {
     if (std::filesystem::exists(logFilePath)) {
         return true;
     }
-
     std::filesystem::create_directories(logFilePath.parent_path());
     std::ofstream createFileStream(logFilePath);
     if (!createFileStream) {
@@ -79,10 +82,9 @@ void Logger::log(LogData logData) {
 }
 
 void Logger::writeLog(const std::string& logLine) {
-    std::ofstream logFileStream(filePath, std::ios::app);
     if (logFileStream.is_open()) {
         logFileStream << logLine;
-        logFileStream.close();
+        logFileStream.flush();
     }
     else {
         std::cerr << "Failed to open log file at " << filePath << "\n";
@@ -98,8 +100,12 @@ std::string Logger::getTime() {
 
 std::string Logger::getLogLevelStr(LogLevel level) {
     switch (level) {
+        case LogLevel::DEBUG:
+            return "[DEBUG]";
         case LogLevel::INFO:
             return "[INFO]";
+        case LogLevel::WARNING:
+            return "[WARNING]";
         case LogLevel::ERR:
             return "[ERROR]";
         default:
@@ -111,4 +117,7 @@ void Logger::cleanup() {
     pthread_join(logThread, nullptr);
     pthread_mutex_destroy(&logMutex);
     pthread_cond_destroy(&logCondition);
+    if (logFileStream.is_open()) {
+        logFileStream.close();
+    }
 }

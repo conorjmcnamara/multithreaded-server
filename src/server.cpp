@@ -98,7 +98,7 @@ void Server::enqueueClientRequest(SOCKET clientSocket) {
     clientQueue.push(clientSocket);
     pthread_mutex_unlock(&mutex);
 
-    // send a signal to wake up one of the waiting threads
+    // send a signal to waiting threads
     pthread_cond_signal(&condition);
     if (threadQueue.size() < maxThreads) {
         addWorkerThread();
@@ -124,8 +124,6 @@ SOCKET Server::dequeueClientRequest() {
 void Server::processClientRequest(SOCKET clientSocket) {
     constexpr int bufferSize = 1024;
     std::vector<char> buffer(bufferSize, '\0');
-
-    // read request data from the client socket
     int bytesRead = recv(clientSocket, buffer.data(), bufferSize - 1, 0);
     if (bytesRead == 0) {
         return;
@@ -133,12 +131,11 @@ void Server::processClientRequest(SOCKET clientSocket) {
 
     std::string request(buffer.data());
     std::string response = http_response.makeResponse(request);
-
+    send(clientSocket, response.c_str(), response.size(), 0);
+    
     logger.log(LogData(http_parser.getHeaderFieldVal(request, "Host"), LogLevel::INFO,
                http_parser.getStartLine(request), http_parser.getResponseCode(response),
                http_parser.getHeaderFieldVal(response, "Content-Length")));
-
-    send(clientSocket, response.c_str(), response.size(), 0);
 }
 
 void Server::removeWorkerThread() {
